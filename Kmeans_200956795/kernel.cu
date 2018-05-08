@@ -3,10 +3,7 @@
 
 __global__ void setByTimeKernel(Point *arrOfPoints, float dt, int size)
 {
-	int i, j;
 	unsigned long id;
-	i = threadIdx.x;
-	j = blockIdx.x;
 	id = blockIdx.x * blockDim.x + threadIdx.x;
 	if (id < size)
 	{
@@ -31,18 +28,21 @@ cudaError_t movePointInTime(Point *arrOfPoints, float dt, int size)
 		numOfBlock += 1;
 	}
 
+	//check for the cuda device if have error reaching him
 	cudaStatus = cudaSetDevice(0);
 	if (cudaStatus != cudaSuccess) {
 		fprintf(stderr, "cudaSetDevice failed!  Do you have a CUDA-capable GPU installed?");
 		freePointsArrayByCuda(pointsArray);
 		return cudaStatus;
 	}
+	//check if there are error in malloc space
 	cudaStatus = cudaMalloc((void**)&pointsArray, size * sizeof(Point));
 	if (cudaStatus != cudaSuccess) {
 		fprintf(stderr, "cudaMalloc failed!");
 		freePointsArrayByCuda(pointsArray);
 		return cudaStatus;
 	}
+	// check if copy there is error in copy from host
 	cudaStatus = cudaMemcpy(pointsArray, arrOfPoints, size * sizeof(Point), cudaMemcpyHostToDevice);
 	if (cudaStatus != cudaSuccess) {
 		fprintf(stderr, "cudaMemcpy failed!");
@@ -50,7 +50,6 @@ cudaError_t movePointInTime(Point *arrOfPoints, float dt, int size)
 		return cudaStatus;
 	}
 
-	//setKernel << <1, size >> >(p_Arry, from, to,size,dT);
 	setByTimeKernel << < numOfBlock, size >> >(pointsArray, dt, size);
 	// Check for any errors launching the kernel
 	cudaStatus = cudaGetLastError();

@@ -1,5 +1,5 @@
 #include "Header.h"
-#define OUT_FNAME "output.txt"
+
 int main(int argc, char *argv[])
 {
 	int  namelen, numprocs, myid;
@@ -50,12 +50,12 @@ int main(int argc, char *argv[])
 		for (i = 0; i < Limit && pointsStayInSameCluster == 1; i++)
 		{
 			MPI_Scatter(arrOfPoints, dividedSize, CreatePointType(), dividedArr, dividedSize, CreatePointType(), 0, MPI_COMM_WORLD);
-			classifyPointsToClusters(arrOfClusters, &dividedArr, 0, dividedSize, NUM_OF_THREAD, K);
+			classifyPointsToClusters(arrOfClusters, &dividedArr, 0, dividedSize, NUM_OF_THREAD, K); //OMP
 			MPI_Gather(dividedArr, dividedSize, CreatePointType(), arrOfPoints, dividedSize, CreatePointType(), 0, MPI_COMM_WORLD);
 
 			if (myid == 0)
 			{
-				findClustersCenter(&arrOfClusters, arrOfPoints, 0, N, K);
+				findClustersCenter(&arrOfClusters, arrOfPoints, 0, N, K); //OMP
 				isPointsMoved = CheckClusterChanges(arrOfClusters, arrOfPreviuseClusters, K);
 				if (isPointsMoved == true)
 				{
@@ -181,7 +181,7 @@ void fileRead(int *N, int *K, float *T, float *dt, int *Limit, float *QM, Cluste
 {
 	int i;
 	FILE *f = fopen("input.txt", "r");
-	fscanf(f, "%d %d %f %f %d %f", N, K, T, dt, Limit, QM);
+	fscanf(f, "%d %d %d %f %f %f", N, K, Limit, QM, T, dt);
 	(*arrOfClusters) = (Cluster*)calloc((*K), sizeof(Cluster));
 	(*arrOfPreviuseClusters) = (Cluster*)calloc((*K), sizeof(Cluster));
 	(*arrOfPoints) = (Point*)calloc((*N), sizeof(Point));
