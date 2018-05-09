@@ -1,4 +1,6 @@
 #include "Header.h"
+#include <iostream>
+using namespace std;
 
 int main(int argc, char *argv[])
 {
@@ -19,7 +21,6 @@ int main(int argc, char *argv[])
 
 	MPI_Get_processor_name(processor_name, &namelen);
 	MPI_Status status;
-
 	if (myid == 0)
 	{
 		// read from file
@@ -180,8 +181,8 @@ MPI_Datatype CreateClusterType()
 void fileRead(int *N, int *K, float *T, float *dt, int *Limit, float *QM, Cluster **arrOfClusters, Cluster **arrOfPreviuseClusters, Point **arrOfPoints)
 {
 	int i;
-	FILE *f = fopen("input.txt", "r");
-	fscanf(f, "%d %d %d %f %f %f", N, K, Limit, QM, T, dt);
+	FILE *f = fopen("D:\input.txt", "r");
+	fscanf(f, "%d %d %f %f %d %f", N, K, T, dt, Limit, QM);
 	(*arrOfClusters) = (Cluster*)calloc((*K), sizeof(Cluster));
 	(*arrOfPreviuseClusters) = (Cluster*)calloc((*K), sizeof(Cluster));
 	(*arrOfPoints) = (Point*)calloc((*N), sizeof(Point));

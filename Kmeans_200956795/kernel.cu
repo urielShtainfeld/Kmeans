@@ -42,8 +42,10 @@ cudaError_t movePointInTime(Point *arrOfPoints, float dt, int size)
 		freePointsArrayByCuda(pointsArray);
 		return cudaStatus;
 	}
-	// check if copy there is error in copy from host
+	
+	//copy from host to GPU buffer
 	cudaStatus = cudaMemcpy(pointsArray, arrOfPoints, size * sizeof(Point), cudaMemcpyHostToDevice);
+	// check if copy there is error in copy from host
 	if (cudaStatus != cudaSuccess) {
 		fprintf(stderr, "cudaMemcpy failed!");
 		freePointsArrayByCuda(pointsArray);
