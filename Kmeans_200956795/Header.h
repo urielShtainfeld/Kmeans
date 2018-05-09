@@ -56,7 +56,7 @@ void saveClustersArray(Cluster *originalClusterArry, Cluster **CopyClusterArry, 
 __global__ void setByTimeKernel(Point *arrOfPoints, float dt, int size);
 cudaError_t movePointInTime(Point *arrOfPoints, float dt, int size);
 void freePointsArrayByCuda(Point *arrOfPoints);
-
+void writeOutputFile(char* fileName, Cluster* clusters, int K, int iter, int limitIter, double time, double maxTime, double quality, double qm);
 
 
 

@@ -77,8 +77,7 @@ int main(int argc, char *argv[])
 			MPI_Bcast(&pointsStayInSameCluster, 1, MPI_INT, 0, MPI_COMM_WORLD);
 			MPI_Bcast(&q, 1, MPI_FLOAT, 0, MPI_COMM_WORLD);
 			MPI_Bcast(&loopStoper, 1, MPI_INT, 0, MPI_COMM_WORLD);
-
-		}
+		
 		MPI_Bcast(&pointsStayInSameCluster, 1, MPI_INT, 0, MPI_COMM_WORLD);
 		if (myid == 0)
 		{
@@ -86,6 +85,7 @@ int main(int argc, char *argv[])
 			{
 				time += dt;
 				loopStoper = 0;
+				Point p = *arrOfPoints;
 				movePointInTime(arrOfPoints, dt, N); // Cuda
 			}
 			else
@@ -106,6 +106,7 @@ int main(int argc, char *argv[])
 			}
 		}
 		MPI_Bcast(&time, 1, MPI_FLOAT, 0, MPI_COMM_WORLD);
+		}
 	}
 
 	if (myid == 0)
@@ -113,7 +114,13 @@ int main(int argc, char *argv[])
 		int w;
 		if (loopStoper == 1)
 		{
-			printf(" First occurrence at t = %f with q = %f\n", finishTime, q);
+			if (finishTime != 0) {
+				printf(" First occurrence at t = %f with q = %f\n", finishTime, q);
+			}
+			else {
+				printf(" finish because Limit of tim at t = %f with q = %f\n", time, q);
+			}
+				
 			printf("Centers of the clusters: \n\n");
 
 			for (w = 0; w < K; w++)
@@ -125,6 +132,7 @@ int main(int argc, char *argv[])
 		{
 			printf("Clusters Not Found\n");
 		}
+		writeOutputFile("D:\output.txt", arrOfClusters, K, i, Limit, finishTime, T, q, QM);
 	}
 	MPI_Finalize();
 	return 0;
@@ -244,4 +252,35 @@ void bCastForClusters(Cluster *arrOfClusters, Cluster *arrOfPreviuseClusters, in
 {
 	MPI_Bcast(arrOfClusters, K, CreateClusterType(), 0, MPI_COMM_WORLD);
 	MPI_Bcast(arrOfPreviuseClusters, K, CreateClusterType(), 0, MPI_COMM_WORLD);
+}
+void writeOutputFile(char* fileName, Cluster* clusters, int K, int iter, int limitIter, double time, double maxTime, double quality, double qm)
+{
+	FILE* f = fopen(fileName, "w");
+	int i;
+	if (f == NULL)
+	{
+		printf("Failed opening the file. Exiting!\n");
+		fflush(stdout);
+		return;
+	}
+
+	if (iter >= limitIter) {
+		fprintf(f, "Finished iterations due to ITERATION limit reached\n");
+	}
+	if (time >= maxTime) {
+		fprintf(f, "Finished iterations due to TIME limit reached\n");
+	}
+	if (quality <= qm) {
+		fprintf(f, "Finished iterations due to QUALITY measure match\n");
+	}
+
+	fprintf(f, "Quality Found: %lf \nNumber of Itrations : %d\n", quality, iter);
+
+	for (i = 0; i < K; i++)
+	{
+		fprintf(f, " %lf	%lf \n", clusters[i].x, clusters[i].y);
+	}
+
+
+	fclose(f);
 }
