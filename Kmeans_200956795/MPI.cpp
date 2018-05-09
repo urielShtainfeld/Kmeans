@@ -65,8 +65,8 @@ int main(int argc, char *argv[])
 				}
 				else  // points are not changing clusters
 				{
-					calcDiameter(&arrOfClusters, arrOfPoints, K, N);
-					calcClustersQuality(&arrOfClusters, K);
+					calcDiameter(&arrOfClusters, arrOfPoints, K, N);//OMP
+					calcClustersQuality(&arrOfClusters, K);//OMP
 					q = isQualityFeets(arrOfClusters, K); //return float quality
 					pointsStayInSameCluster = 0;
 				}
